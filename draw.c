@@ -19,6 +19,13 @@
 void add_circle( struct matrix * points,
                  double cx, double cy, double cz,
                  double r, double step ) {
+  int t = 0;
+  while(t < 1){
+    int x = r * cos(2 * M.pi * t) + cx;
+    int y = r * sin(2 * M.pi * t) + cy;
+    add_point(points,x,y,cz);
+    t += step;
+  }
 }
 
 /*======== void add_curve() ==========
@@ -45,6 +52,17 @@ void add_curve( struct matrix *points,
                 double x2, double y2, 
                 double x3, double y3, 
                 double step, int type ) {
+  //for hermite x0, y0, x1, y1, rx0, ry0, rx1, ry1
+  int t = 0;
+  struct matrix *cox = (x0,x1,x2,x3,type);
+  struct matrix *coy = (y0,y1,y2,y3,type);
+  while(t < 1){
+    int i;
+    int x = cox->m[0][0] * pow(t,3) + cox->m[0][1] * pow(t,2) + cox->m[0][2] * t + cox->m[0][3];
+    int y = coy->m[0][0] * pow(t,3) + coy->m[0][1] * pow(t,2) + coy->m[0][2] * t + coy->m[0][3];
+    add_point(points,x,y,0);
+    t += step;
+  }
 }
 
 
