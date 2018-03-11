@@ -5,6 +5,7 @@
 #include "display.h"
 #include "draw.h"
 #include "matrix.h"
+#include "math.h"
 
 /*======== void add_circle() ==========
   Inputs:   struct matrix * points
@@ -19,12 +20,16 @@
 void add_circle( struct matrix * points,
                  double cx, double cy, double cz,
                  double r, double step ) {
-  int t = 0;
+  double t = 0;
+  double prevX = r * cos(2 * M_PI * t) + cx;
+  double prevY = r * sin(2 * M_PI * t) + cy;
   while(t < 1){
-    int x = r * cos(2 * M.pi * t) + cx;
-    int y = r * sin(2 * M.pi * t) + cy;
-    add_point(points,x,y,cz);
     t += step;
+    double x = r * cos(2 * M_PI * t) + cx;
+    double y = r * sin(2 * M_PI * t) + cy;
+    add_edge(points,prevX,prevY,cz,x,y,cz);
+    prevX = x;
+    prevY = y;
   }
 }
 
@@ -53,15 +58,22 @@ void add_curve( struct matrix *points,
                 double x3, double y3, 
                 double step, int type ) {
   //for hermite x0, y0, x1, y1, rx0, ry0, rx1, ry1
-  int t = 0;
-  struct matrix *cox = (x0,x1,x2,x3,type);
-  struct matrix *coy = (y0,y1,y2,y3,type);
+  double t = 0;
+  struct matrix *cox = generate_curve_coefs(x0,x1,x2,x3,type);
+  struct matrix *coy = generate_curve_coefs(y0,y1,y2,y3,type);
+  double prevX = cox->m[0][0] * pow(t,3) + cox->m[1][0] * pow(t,2) +
+    cox->m[2][0] * t + cox->m[3][0];
+  double prevY = coy->m[0][0] * pow(t,3) + coy->m[1][0] * pow(t,2) +
+    coy->m[2][0] * t + coy->m[3][0];
   while(t < 1){
-    int i;
-    int x = cox->m[0][0] * pow(t,3) + cox->m[0][1] * pow(t,2) + cox->m[0][2] * t + cox->m[0][3];
-    int y = coy->m[0][0] * pow(t,3) + coy->m[0][1] * pow(t,2) + coy->m[0][2] * t + coy->m[0][3];
-    add_point(points,x,y,0);
     t += step;
+    double x = cox->m[0][0] * pow(t,3) + cox->m[1][0] * pow(t,2) +
+      cox->m[2][0] * t + cox->m[3][0];
+    double y = coy->m[0][0] * pow(t,3) + coy->m[1][0] * pow(t,2) +
+      coy->m[2][0] * t + coy->m[3][0];
+    add_edge(points,prevX,prevY,0,x,y,0);
+    prevX = x;
+    prevY = y;
   }
 }
 
